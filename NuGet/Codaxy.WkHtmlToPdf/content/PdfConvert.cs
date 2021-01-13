@@ -295,7 +295,7 @@ namespace Codaxy.WkHtmlToPdf
                     process.BeginErrorReadLine();
 
                     if (document.Html != null && IsEmptyUrl(document.Url))
-                        using (var stream = process.StandardInput)
+                        using (var stream = new StreamWriter(process.StandardInput.BaseStream, Encoding.UTF8))
                             stream.Write(document.Html);
 
                     if (process.WaitForExit(environment.Timeout) && errorWaitHandle.WaitOne())
