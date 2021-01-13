@@ -1,33 +1,34 @@
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Text;
+using System.IO;
 using System.Threading;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
-/// <summary>
-/// Fork of Codaxy PDF service https://raw.githubusercontent.com/AuthiQ/wkhtmltopdf/master/NuGet/Codaxy.WkHtmlToPdf/content/PdfConvert.cs.
-/// </summary>
-namespace Codaxy.WkHtmlToPdf {
+namespace Codaxy.WkHtmlToPdf
+{
     /// <summary>
     /// An exception that can occur whilst converting HTML to PDF.
     /// </summary>
-    public class PdfConvertException : Exception {
+    public class PdfConvertException : Exception
+    {
         public PdfConvertException(String msg) : base(msg) { }
     }
 
     /// <summary>
     /// An exception representing a failed state wherin a conversion time-out has occurred.
     /// </summary>
-    public class PdfConvertTimeoutException : PdfConvertException {
+    public class PdfConvertTimeoutException : PdfConvertException
+    {
         public PdfConvertTimeoutException() : base("HTML to PDF conversion process has not finished in the given period.") { }
     }
 
     /// <summary>
     /// The output's can ben single or multiple.
     /// </summary>
-    public class PdfOutput {
+    public class PdfOutput
+    {
         /// <summary>
         /// The file path for the output document.
         /// </summary>
@@ -40,9 +41,8 @@ namespace Codaxy.WkHtmlToPdf {
         /// Callback that will be called once conversion has completed.
         /// </summary>
         public Action<PdfDocument, byte[]> OutputCallback { get; set; }
-
-        /// <summary>
-        /// Encoding of the output document.
+		/// <summary>
+        /// Encoding of the document.
         /// </summary>
         public Encoding Enconding { get; set; } = Encoding.UTF8;
     }
@@ -50,7 +50,8 @@ namespace Codaxy.WkHtmlToPdf {
     /// <summary>
     /// The object representing a document to be converted to PDF or already converted.
     /// </summary>
-    public class PdfDocument {
+    public class PdfDocument
+    {
         /// <summary>
         /// The URL of which to fetch the HTML document for the document body.
         /// </summary>
@@ -105,7 +106,8 @@ namespace Codaxy.WkHtmlToPdf {
         public Dictionary<String, String> ExtraParams { get; set; }
     }
 
-    public class PdfConvertEnvironment {
+    public class PdfConvertEnvironment
+    {
         /// <summary>
         /// The path to store the processed files temporarily
         /// </summary>
@@ -127,7 +129,8 @@ namespace Codaxy.WkHtmlToPdf {
     /// <summary>
     /// Contains all helpers for HTML to PDF conversion.
     /// </summary>
-    public class PdfConvert {
+    public class PdfConvert
+    {
         private const short BUFFER_SIZE = 4096;
 
         private static PdfConvertEnvironment _e;
@@ -135,10 +138,13 @@ namespace Codaxy.WkHtmlToPdf {
         /// <summary>
         /// The Pdf converter settings, if not set a default will be returned.
         /// </summary>
-        public static PdfConvertEnvironment Environment {
-            get {
+        public static PdfConvertEnvironment Environment
+        {
+            get
+            {
                 if (_e == null)
-                    _e = new PdfConvertEnvironment {
+                    _e = new PdfConvertEnvironment
+                    {
                         TempFolderPath = Path.GetTempPath(),
                         WkHtmlToPdfPath = GetWkhtmlToPdfExeLocation(),
                         Timeout = 60000
@@ -147,7 +153,8 @@ namespace Codaxy.WkHtmlToPdf {
             }
         }
 
-        private static string GetWkhtmlToPdfExeLocation() {
+        private static string GetWkhtmlToPdfExeLocation()
+        {
             string programFilesPath = System.Environment.GetEnvironmentVariable("ProgramFiles");
             string filePath = Path.Combine(programFilesPath, @"wkhtmltopdf\wkhtmltopdf.exe");
 
@@ -167,21 +174,25 @@ namespace Codaxy.WkHtmlToPdf {
             return Path.Combine(programFilesx86Path, @"wkhtmltopdf\bin\wkhtmltopdf.exe");
         }
 
-        private static bool IsEmptyUrl(string url) {
+        private static bool IsEmptyUrl(string url)
+        {
             return string.IsNullOrEmpty(url) ? true : url == "-" ? true : false;
         }
 
-        private static string BuildParams(PdfDocument document, string outputPath) {
+        private static string BuildParams(PdfDocument document, string outputPath)
+        {
             StringBuilder paramsBuilder = new StringBuilder();
             paramsBuilder.Append("--page-size A4 ");
 
-            if (!string.IsNullOrEmpty(document.HeaderUrl)) {
+            if (!string.IsNullOrEmpty(document.HeaderUrl))
+            {
                 paramsBuilder.AppendFormat("--header-html {0} ", document.HeaderUrl);
                 paramsBuilder.Append("--margin-top 25 ");
                 paramsBuilder.Append("--header-spacing 5 ");
             }
 
-            if (!string.IsNullOrEmpty(document.FooterUrl)) {
+            if (!string.IsNullOrEmpty(document.FooterUrl))
+            {
                 paramsBuilder.AppendFormat("--footer-html {0} ", document.FooterUrl);
                 paramsBuilder.Append("--margin-bottom 25 ");
                 paramsBuilder.Append("--footer-spacing 5 ");
@@ -226,7 +237,8 @@ namespace Codaxy.WkHtmlToPdf {
         /// </summary>
         /// <param name="document">The PDF input document.</param>
         /// <param name="output">An object holding the output settings.</param>
-        public static void ConvertHtmlToPdf(PdfDocument document, PdfOutput output) {
+        public static void ConvertHtmlToPdf(PdfDocument document, PdfOutput output)
+        {
             ConvertHtmlToPdf(document, null, output);
         }
 
@@ -236,7 +248,8 @@ namespace Codaxy.WkHtmlToPdf {
         /// <param name="document">The PDF input document.</param>
         /// <param name="environment">The wkhtml enviromental settings object.</param>
         /// <param name="woutput">An object holding the output settings.</param>
-        public static void ConvertHtmlToPdf(PdfDocument document, PdfConvertEnvironment environment, PdfOutput woutput) {
+        public static void ConvertHtmlToPdf(PdfDocument document, PdfConvertEnvironment environment, PdfOutput woutput)
+        {
             if (IsEmptyUrl(document.Url) && string.IsNullOrEmpty(document.Html))
                 throw new PdfConvertException(
                     String.Format("You must supply a HTML string, if you have entered the url: {0}",
@@ -260,7 +273,8 @@ namespace Codaxy.WkHtmlToPdf {
             var error = new StringBuilder();
 
             using (var output = new MemoryStream())
-            using (Process process = new Process()) {
+            using (Process process = new Process())
+            {
                 process.StartInfo.FileName = environment.WkHtmlToPdfPath;
                 process.StartInfo.Arguments = BuildParams(document, PdfOutputPath);
                 process.StartInfo.UseShellExecute = false;
@@ -268,11 +282,14 @@ namespace Codaxy.WkHtmlToPdf {
                 process.StartInfo.RedirectStandardError = true;
                 process.StartInfo.RedirectStandardInput = true;
 
-                using (AutoResetEvent errorWaitHandle = new AutoResetEvent(false)) {
-                    DataReceivedEventHandler errorHandler = (sender, e) => {
+                using (AutoResetEvent errorWaitHandle = new AutoResetEvent(false))
+                {
+                    DataReceivedEventHandler errorHandler = (sender, e) =>
+                    {
                         if (e.Data == null)
                             errorWaitHandle.Set();
-                        else {
+                        else
+                        {
                             error.AppendLine(e.Data);
                         }
                     };
@@ -285,13 +302,16 @@ namespace Codaxy.WkHtmlToPdf {
                         using (var stream = new StreamWriter(process.StandardInput.BaseStream, woutput.Enconding))
                             stream.Write(document.Html);
 
-                    if (process.WaitForExit(environment.Timeout) && errorWaitHandle.WaitOne()) {
+                    if (process.WaitForExit(environment.Timeout) && errorWaitHandle.WaitOne())
+                    {
                         if (process.ExitCode != 0)
                             throw new PdfConvertException(
                                 String.Format("Html to PDF conversion of document failed. Wkhtmltopdf output: \r\n{1}",
                                 document.Url, error));
-                        else {
-                            if (woutput.OutputStream != null || woutput.OutputCallback != null) {
+                        else
+                        {
+                            if (woutput.OutputStream != null || woutput.OutputCallback != null)
+                            {
                                 int read;
                                 byte[] buff = new byte[BUFFER_SIZE];
                                 using (var fs = new FileStream(PdfOutputPath, FileMode.Open))
@@ -306,7 +326,9 @@ namespace Codaxy.WkHtmlToPdf {
                                     woutput.OutputCallback(document, output.ToArray());
                             }
                         }
-                    } else {
+                    }
+                    else
+                    {
                         if (!process.HasExited)
                             process.Kill();
 
@@ -325,8 +347,10 @@ namespace Codaxy.WkHtmlToPdf {
         /// </summary>
         /// <param name="document">The PDF input document.</param>
         /// <param name="output">An object holding the output settings.</param>
-        public static Task ConvertHtmlToPdfAsync(PdfDocument document, PdfOutput output) {
-            return Task.Factory.StartNew(() => {
+        public static Task ConvertHtmlToPdfAsync(PdfDocument document, PdfOutput output)
+        {
+            return Task.Factory.StartNew(() =>
+            {
                 ConvertHtmlToPdf(document, null, output);
             });
         }
@@ -337,8 +361,10 @@ namespace Codaxy.WkHtmlToPdf {
         /// <param name="document">The PDF input document.</param>
         /// <param name="environment">The wkhtml enviromental settings object.</param>
         /// <param name="woutput">An object holding the output settings.</param>
-        public static Task ConvertHtmlToPdfAsync(PdfDocument document, PdfConvertEnvironment environment, PdfOutput output) {
-            return Task.Factory.StartNew(() => {
+        public static Task ConvertHtmlToPdfAsync(PdfDocument document, PdfConvertEnvironment environment, PdfOutput output)
+        {
+            return Task.Factory.StartNew(() =>
+            {
                 ConvertHtmlToPdf(document, environment, output);
             });
         }
