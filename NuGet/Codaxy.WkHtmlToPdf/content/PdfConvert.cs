@@ -41,7 +41,7 @@ namespace Codaxy.WkHtmlToPdf
         /// Callback that will be called once conversion has completed.
         /// </summary>
         public Action<PdfDocument, byte[]> OutputCallback { get; set; }
-		/// <summary>
+        /// <summary>
         /// Encoding of the document.
         /// </summary>
         public Encoding Enconding { get; set; } = Encoding.UTF8;
