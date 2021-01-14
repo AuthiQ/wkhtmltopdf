@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.Text;
 using System.IO;
@@ -27,43 +27,47 @@ namespace Codaxy.WkHtmlToPdf
     /// <summary>
     /// The output's can ben single or multiple.
     /// </summary>
-	public class PdfOutput
+    public class PdfOutput
     {
         /// <summary>
         /// The file path for the output document.
         /// </summary>
-		public String OutputFilePath { get; set; }
+        public String OutputFilePath { get; set; }
         /// <summary>
         /// The output stream, pdf data will be written to the stream.
         /// </summary>
-		public Stream OutputStream { get; set; }
+        public Stream OutputStream { get; set; }
         /// <summary>
         /// Callback that will be called once conversion has completed.
         /// </summary>
-		public Action<PdfDocument, byte[]> OutputCallback { get; set; }
+        public Action<PdfDocument, byte[]> OutputCallback { get; set; }
+        /// <summary>
+        /// Encoding of the document.
+        /// </summary>
+        public Encoding Encoding { get; set; } = Encoding.UTF8;
     }
 
     /// <summary>
     /// The object representing a document to be converted to PDF or already converted.
     /// </summary>
-	public class PdfDocument
+    public class PdfDocument
     {
         /// <summary>
         /// The URL of which to fetch the HTML document for the document body.
         /// </summary>
-		public String Url { get; set; }
+        public String Url { get; set; }
         /// <summary>
         /// An HTML string used as the base file for conversion.
         /// </summary>
-		public String Html { get; set; }
+        public String Html { get; set; }
         /// <summary>
         /// URL of which to fetch the HTML document for the document header.
         /// </summary>
-		public String HeaderUrl { get; set; }
+        public String HeaderUrl { get; set; }
         /// <summary>
         /// URL of which to fetch the HTML document for the document footer.
         /// </summary>
-		public String FooterUrl { get; set; }
+        public String FooterUrl { get; set; }
         /// <summary>
         /// HTML string used to render the left part of the document header.
         /// </summary>
@@ -91,7 +95,7 @@ namespace Codaxy.WkHtmlToPdf
         /// <summary>
         /// An object representing the document state.
         /// </summary>
-		public object State { get; set; }
+        public object State { get; set; }
         /// <summary>
         /// A dictionary containing cookies to be send to the server whilst fetching HTML documents.
         /// </summary>
@@ -111,15 +115,15 @@ namespace Codaxy.WkHtmlToPdf
         /// <summary>
         /// The path to the wkhtmltopdf executable file.
         /// </summary>
-		public String WkHtmlToPdfPath { get; set; }
+        public String WkHtmlToPdfPath { get; set; }
         /// <summary>
         /// The processing timeout.
         /// </summary>
-		public int Timeout { get; set; }
+        public int Timeout { get; set; }
         /// <summary>
         /// Determines whether this is a debugging run.
         /// </summary>
-		public bool Debug { get; set; }
+        public bool Debug { get; set; }
     }
 
     /// <summary>
@@ -134,7 +138,7 @@ namespace Codaxy.WkHtmlToPdf
         /// <summary>
         /// The Pdf converter settings, if not set a default will be returned.
         /// </summary>
-		public static PdfConvertEnvironment Environment
+        public static PdfConvertEnvironment Environment
         {
             get
             {
@@ -295,7 +299,7 @@ namespace Codaxy.WkHtmlToPdf
                     process.BeginErrorReadLine();
 
                     if (document.Html != null && IsEmptyUrl(document.Url))
-                        using (var stream = process.StandardInput)
+                        using (var stream = new StreamWriter(process.StandardInput.BaseStream, woutput.Encoding))
                             stream.Write(document.Html);
 
                     if (process.WaitForExit(environment.Timeout) && errorWaitHandle.WaitOne())
