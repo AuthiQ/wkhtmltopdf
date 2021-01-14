@@ -44,7 +44,7 @@ namespace Codaxy.WkHtmlToPdf
         /// <summary>
         /// Encoding of the document.
         /// </summary>
-        public Encoding Enconding { get; set; } = Encoding.UTF8;
+        public Encoding Encoding { get; set; } = Encoding.UTF8;
     }
 
     /// <summary>
@@ -299,7 +299,7 @@ namespace Codaxy.WkHtmlToPdf
                     process.BeginErrorReadLine();
 
                     if (document.Html != null && IsEmptyUrl(document.Url))
-                        using (var stream = new StreamWriter(process.StandardInput.BaseStream, woutput.Enconding))
+                        using (var stream = new StreamWriter(process.StandardInput.BaseStream, woutput.Encoding))
                             stream.Write(document.Html);
 
                     if (process.WaitForExit(environment.Timeout) && errorWaitHandle.WaitOne())
